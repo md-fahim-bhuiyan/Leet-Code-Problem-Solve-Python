@@ -1,27 +1,30 @@
 class Solution:
-    def findMedianSortedArrays(self, nums1, nums2):
-        if len(nums1) > len(nums2):
-            nums1, nums2 = nums2, nums1
+  def longestPalindrome(self, s: str) -> str:
+    if not s:
+      return ''
 
-        x, y = len(nums1), len(nums2)
-        low, high = 0, x
+    # (start, end) indices of the longest palindrome in s
+    indices = [0, 0]
 
-        while low <= high:
-            partitionX = (low + high) // 2
-            partitionY = (x + y + 1) // 2 - partitionX
+    def extend(s: str, i: int, j: int) -> tuple[int, int]:
+      """
+      Returns the (start, end) indices of the longest palindrome extended from
+      the substring s[i..j].
+      """
+      while i >= 0 and j < len(s):
+        if s[i] != s[j]:
+          break
+        i -= 1
+        j += 1
+      return i + 1, j - 1
 
-            maxLeftX = float('-inf') if partitionX == 0 else nums1[partitionX - 1]
-            minRightX = float('inf') if partitionX == x else nums1[partitionX]
+    for i in range(len(s)):
+      l1, r1 = extend(s, i, i)
+      if r1 - l1 > indices[1] - indices[0]:
+        indices = l1, r1
+      if i + 1 < len(s) and s[i] == s[i + 1]:
+        l2, r2 = extend(s, i, i + 1)
+        if r2 - l2 > indices[1] - indices[0]:
+          indices = l2, r2
 
-            maxLeftY = float('-inf') if partitionY == 0 else nums2[partitionY - 1]
-            minRightY = float('inf') if partitionY == y else nums2[partitionY]
-
-            if maxLeftX <= minRightY and maxLeftY <= minRightX:
-                if (x + y) % 2 == 0:
-                    return (max(maxLeftX, maxLeftY) + min(minRightX, minRightY)) / 2
-                else:
-                    return max(maxLeftX, maxLeftY)
-            elif maxLeftX > minRightY:
-                high = partitionX - 1
-            else:
-                low = partitionX + 1
+    return s[indices[0]:indices[1] + 1]
